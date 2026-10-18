@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f3d3e">
+<title>KEYWORD RADAR</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --bg:#f4f6f5; --panel:#ffffff; --line:#e2e7e5; --ink:#17201f; --sub:#5d6b69; --mute:#8a9795;
+  --brand:#0f3d3e; --accent:#0e8f7e; --accent-soft:#e3f4f1;
+  --issue:#d9480f; --issue-bg:#fff0e6; --season:#7048e8; --season-bg:#f1edff;
+  --ever:#2b8a3e; --ever-bg:#e9f7ec; --normal:#5d6b69; --normal-bg:#eef1f0;
+  --S:#0e8f7e; --A:#1c7ed6; --B:#e8a10c; --C:#adb5bd;
+  --radius:14px; --nav-h:62px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+a{color:var(--accent);text-decoration:none}
+.hidden{display:none!important}
+
+/* ── 상단 ── */
+.top{position:sticky;top:0;z-index:20;background:var(--brand);color:#fff;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:8px;min-width:0}
+.brand b{font-size:16px;letter-spacing:.5px;white-space:nowrap}
+.logo{width:26px;height:26px;border-radius:50%;border:2px solid #7fe3d3;display:grid;place-items:center;position:relative;flex:none}
+.logo::after{content:"";width:8px;height:8px;border-radius:50%;background:#7fe3d3}
+.badge{font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,.15);white-space:nowrap}
+.badge.pro{background:#7fe3d3;color:var(--brand);font-weight:700}
+.user{display:flex;align-items:center;gap:8px;font-size:12px;opacity:.9}
+.user img{width:26px;height:26px;border-radius:50%}
+
+/* ── 탭 ── */
+.tabs{display:flex;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:calc(48px + env(safe-area-inset-top));z-index:19}
+.tabs button{flex:1;padding:12px 4px;font-weight:600;color:var(--sub);border-bottom:3px solid transparent;font-size:14px}
+.tabs button.on{color:var(--brand);border-color:var(--accent)}
+.tabs button .ico{display:none}
+@media (max-width:767px){
+  .tabs{position:fixed;top:auto;bottom:0;left:0;right:0;border-top:1px solid var(--line);border-bottom:none;padding-bottom:env(safe-area-inset-bottom);height:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+  .tabs button{border-bottom:none;border-top:3px solid transparent;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;padding:8px 2px}
+  .tabs button.on{border-color:var(--accent)}
+  .tabs button .ico{display:block;font-size:19px;line-height:1}
+  main{padding-bottom:calc(var(--nav-h) + 24px + env(safe-area-inset-bottom))!important}
+}
+
+main{max-width:980px;margin:0 auto;padding:16px 16px 40px}
+.view{display:none}
+.view.on{display:block}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.panel h2{font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.panel h2 small{font-weight:500;color:var(--mute);font-size:12px}
+.hint{font-size:12.5px;color:var(--mute)}
+
+/* ── 입력 ── */
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.inp{flex:1;min-width:0;height:46px;border:1.5px solid var(--line);border-radius:12px;padding:0 14px;background:#fff;font-size:16px}
+.inp:focus,.sel:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.sel{height:40px;border:1.5px solid var(--line);border-radius:10px;padding:0 10px;background:#fff;font-size:14px}
+textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px;resize:vertical;min-height:90px;background:#fff}
+.btn{height:46px;padding:0 18px;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;white-space:nowrap}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:var(--accent-soft);color:var(--brand)}
+.btn.sm{height:34px;padding:0 12px;border-radius:9px;font-size:13px}
+.btn.line{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.btn.warn{background:#fff0f0;color:#c92a2a}
+.opts{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.opts label{font-size:13px;color:var(--sub);display:flex;align-items:center;gap:6px}
+
+/* ── 칩 ── */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:5px 6px 5px 11px;border-radius:20px;background:var(--accent-soft);color:var(--brand);font-size:13.5px;font-weight:600}
+.chip.seed{background:var(--brand);color:#fff}
+.chip button{width:20px;height:20px;border-radius:50%;font-size:13px;color:inherit;opacity:.6}
+.chip button:hover{opacity:1;background:rgba(0,0,0,.08)}
+.chip.plain{padding:5px 11px;cursor:pointer;background:#fff;border:1px solid var(--line);color:var(--sub);font-weight:500}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:#fff;font-size:13px;color:var(--sub)}
+.seg button.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+
+/* ── 진행 ── */
+.prog{margin-top:12px}
+.prog .bar{height:8px;border-radius:8px;background:var(--line);overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.prog p{font-size:13px;color:var(--sub);margin-top:6px}
+
+/* ── 결과 카드 ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:13px 14px;display:flex;flex-direction:column;gap:8px}
+.card.pick{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.r1{display:flex;align-items:center;gap:8px}
+.grade{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-weight:800;color:#fff;font-size:13px;flex:none}
+.g-S{background:var(--S)}.g-A{background:var(--A)}.g-B{background:var(--B)}.g-C{background:var(--C)}
+.kwname{font-weight:700;font-size:15.5px;flex:1;min-width:0;word-break:keep-all;overflow-wrap:anywhere}
+.type{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.t-이슈{color:var(--issue);background:var(--issue-bg)}
+.t-시즌{color:var(--season);background:var(--season-bg)}
+.t-에버그린{color:var(--ever);background:var(--ever-bg)}
+.t-일반,.t-데이터부족,.t-유지{color:var(--normal);background:var(--normal-bg)}
+.t-급상승{color:#fff;background:var(--issue)}
+.t-상승{color:var(--issue);background:var(--issue-bg)}
+.src{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:20px;margin-right:3px;border:1px solid var(--line);color:var(--sub);background:#fff}
+.src-구글{border-color:#c5d8fb;color:#1a5fd0;background:#eef4ff}
+.src-뉴스{border-color:#d9d9d9;color:#444}
+.src-시즌{border-color:#ddd2ff;color:var(--season);background:var(--season-bg)}
+.prow .ex{font-size:15px}
+.score{font-weight:800;font-size:18px;color:var(--brand);min-width:30px;text-align:right}
+.sbar{height:5px;border-radius:5px;background:var(--line);overflow:hidden}
+.sbar i{display:block;height:100%;background:var(--accent)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.metrics div{background:#f7f9f8;border-radius:8px;padding:5px 6px;text-align:center}
+.metrics span{display:block;font-size:11px;color:var(--mute)}
+.metrics b{font-size:14px}
+.note{font-size:12.5px;color:var(--sub)}
+.note.hot{color:var(--season);font-weight:600}
+.acts{display:flex;gap:6px}
+.acts button{flex:1;height:34px;border-radius:9px;background:#f1f4f3;font-size:13px;font-weight:600;color:var(--sub)}
+.acts button.saved{background:var(--accent-soft);color:var(--brand)}
+.up{color:#d9480f}.down{color:#1c7ed6}
+
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.sumline{font-size:13px;color:var(--sub)}
+.warnbox{background:#fff8e6;border:1px solid #ffe3a3;color:#8a5a00;border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:12px}
+.infobox{background:var(--accent-soft);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--brand);margin-bottom:12px}
+
+/* ── 리스트(보관함/순위) ── */
+.list{display:flex;flex-direction:column;gap:8px}
+.item{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 12px;display:flex;flex-direction:column;gap:6px}
+.item .top2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item .top2 b{flex:1;min-width:120px}
+.item input.memo{width:100%;height:36px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font-size:14px}
+.st{font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px}
+.st-후보{background:#eef1f0;color:#5d6b69}.st-작성예정{background:#e7f1ff;color:#1c7ed6}.st-발행완료{background:var(--ever-bg);color:var(--ever)}.st-보류{background:#fff0f0;color:#c92a2a}
+table.rank{width:100%;border-collapse:collapse;font-size:14px}
+table.rank th,table.rank td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
+table.rank th{font-size:12px;color:var(--mute);font-weight:600}
+table.rank td.num{text-align:center;font-weight:700;white-space:nowrap}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--mute)}
+.kv dd{word-break:break-all}
+.meter{height:7px;border-radius:7px;background:var(--line);overflow:hidden;margin-top:4px}
+.meter i{display:block;height:100%;background:var(--accent)}
+
+/* ── 로그인 ── */
+.login{max-width:420px;margin:60px auto;text-align:center}
+.login h1{font-size:24px;margin:14px 0 6px;color:var(--brand)}
+.login p{color:var(--sub);font-size:14px;margin-bottom:22px}
+.gbtn{display:inline-flex;align-items:center;gap:10px;height:50px;padding:0 22px;border-radius:12px;background:#fff;border:1.5px solid var(--line);font-weight:700;font-size:15px}
+.bigLogo{width:64px;height:64px;border-radius:50%;border:4px solid var(--accent);display:inline-grid;place-items:center}
+.bigLogo::after{content:"";width:18px;height:18px;border-radius:50%;background:var(--accent)}
+
+/* ── 모달 ── */
+.modal{position:fixed;inset:0;background:rgba(15,25,24,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--panel);width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom))}
+@media (min-width:768px){.modal{align-items:center}.sheet{border-radius:18px}}
+.sheet h3{font-size:18px;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.sheet h4{font-size:14px;margin:16px 0 8px;color:var(--sub)}
+.close{margin-left:auto;width:34px;height:34px;border-radius:50%;background:#f1f4f3;font-size:18px}
+canvas.spark{width:100%;height:150px;display:block;background:#fafcfb;border-radius:10px}
+.tl{list-style:none;display:flex;flex-direction:column;gap:6px}
+.tl li{font-size:13.5px;padding:8px 10px;background:#f7f9f8;border-radius:8px}
+.tl li small{color:var(--mute);display:block;font-size:11.5px}
+
+#toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 26px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#17201f;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90vw;text-align:center}
+#toast.on{opacity:1}
+.empty{text-align:center;color:var(--mute);padding:28px 10px;font-size:14px}
+#candPanel,#resultWrap{scroll-margin-top:110px}
+@media (max-width:767px){#candPanel,#resultWrap{scroll-margin-top:64px}}
+.picks{display:flex;flex-direction:column}
+.prow{display:flex;align-items:center;gap:8px;padding:10px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+.prow:last-child{border-bottom:none}
+.prow .no{width:22px;text-align:center;font-weight:800;color:var(--mute);flex:none}
+.prow .kwname{font-size:15px}
+.prow .sub{font-size:12px;color:var(--mute);display:block;font-weight:500}
+.prow .score{font-size:16px}
+.prow .star{width:32px;height:32px;border-radius:8px;font-size:16px;color:var(--mute);flex:none}
+.prow .star.on{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><span class="logo"></span><b>KEYWORD RADAR</b><span id="modeBadge" class="badge">연결 전</span></div>
+  <div class="user" id="userBox"></div>
+</header>
+
+<nav class="tabs hidden" id="tabs">
+  <button data-view="today" class="on"><span class="ico">✦</span>오늘의 주제</button>
+  <button data-view="find"><span class="ico">◎</span>직접 찾기</button>
+  <button data-view="saved"><span class="ico">☆</span>보관함</button>
+  <button data-view="myblog"><span class="ico">▲</span>내 블로그</button>
+  <button data-view="settings"><span class="ico">⚙</span>설정</button>
+</nav>
+
+<main>
+  <!-- 로그인 -->
+  <section id="view-login" class="view on">
+    <div class="login">
+      <div class="bigLogo"></div>
+      <h1>KEYWORD RADAR</h1>
+      <p>네이버 수요(검색어트렌드)와 공급(블로그 발행량)을 비교해<br>쓸 만한 블로그 주제를 골라 줍니다.</p>
+      <div id="inappWarn" class="warnbox hidden">카카오톡·네이버 앱 안에서는 Google 로그인이 막힙니다.<br>오른쪽 위 메뉴 → <b>다른 브라우저로 열기</b>(크롬·삼성인터넷)를 이용하세요.</div>
+      <div id="configWarn" class="warnbox hidden">index.html 상단 CONFIG에 Firebase apiKey·appId를 입력해야 합니다.</div>
+      <button class="gbtn" id="loginBtn">
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+        Google로 로그인
+      </button>
+      <p class="hint" style="margin-top:14px">본인 계정(UID 고정)만 사용할 수 있습니다.</p>
+    </div>
+  </section>
+
+  <!-- 오늘의 주제 (시드 없이 자동) -->
+  <section id="view-today" class="view">
+    <div class="panel">
+      <h2>오늘의 주제 <small id="todayDate"></small></h2>
+      <p class="hint">Google 트렌드 급상승 · 오늘 뉴스 헤드라인 · 이달의 시즌 키워드에서 후보를 자동으로 모은 뒤, 네이버 검색 추이(최근 35일)와 블로그 발행량으로 순위를 매깁니다.</p>
+      <div class="opts">
+        <label><input type="checkbox" id="srcG" checked> Google 트렌드</label>
+        <label><input type="checkbox" id="srcN" checked> 뉴스 헤드라인</label>
+        <label><input type="checkbox" id="srcS" checked> 시즌 키워드</label>
+      </div>
+      <div class="row" style="margin-top:12px"><button id="todayBtn" class="btn" style="flex:1">오늘의 주제 뽑기</button></div>
+      <div id="todayProg" class="prog hidden"><div class="bar"><i></i></div><p></p></div>
+      <p class="hint" id="todayMeta" style="margin-top:8px"></p>
+    </div>
+    <div id="todayWrap" class="hidden">
+      <div class="toolbar">
+        <div class="seg" id="todaySeg"></div>
+        <button id="todayCsv" class="btn sm line">CSV</button>
+      </div>
+      <div class="panel" style="padding-top:4px;padding-bottom:4px"><div id="todayList" class="picks"></div></div>
+      <p class="hint" id="todayFoot"></p>
+    </div>
+  </section>
+
+  <!-- 직접 찾기 (시드 기반) -->
+  <section id="view-find" class="view">
+    <div class="panel">
+      <h2>① 시드 키워드 <small>넓은 주제어 1개 (예: 실업급여, 전기요금, 제주 여행)</small></h2>
+      <div class="row">
+        <input id="seedInp" class="inp" placeholder="주제어 입력" enterkeyhint="search" autocomplete="off">
+        <button id="candBtn" class="btn">후보 뽑기</button>
+      </div>
+      <div class="opts">
+        <label>수식어 <select id="modSel" class="sel"></select></label>
+        <label>후보 수 <select id="cntSel" class="sel"><option>20</option><option selected>30</option><option>40</option></select></label>
+      </div>
+      <div id="recentRuns" class="chips"></div>
+    </div>
+
+    <div class="panel hidden" id="candPanel">
+      <h2>② 후보 키워드 <small id="candCount"></small></h2>
+      <p class="hint">필요 없는 후보는 ×로 지우고, 직접 추가할 수도 있습니다.</p>
+      <div id="candChips" class="chips"></div>
+      <div class="row" style="margin-top:10px">
+        <input id="addInp" class="inp" placeholder="후보 직접 추가 (쉼표로 여러 개)" autocomplete="off" style="height:40px;font-size:15px">
+        <button id="addBtn" class="btn sm ghost">추가</button>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button id="runBtn" class="btn" style="flex:1">분석 실행</button>
+      </div>
+      <div id="prog" class="prog hidden"><div class="bar"><i></i></div><p></p></div>
+    </div>
+
+    <div id="resultWrap" class="hidden">
+      <div id="resultWarn"></div>
+      <div class="panel" style="padding-bottom:6px">
+        <h2>③ 오늘의 추천 <small>이슈 3 · 시즌/에버그린 7 배분</small></h2>
+        <div id="picks" class="picks" style="margin-bottom:6px"></div>
+      </div>
+      <div class="toolbar">
+        <div class="seg" id="typeSeg"></div>
+        <div class="row">
+          <select id="sortSel" class="sel">
+            <option value="score">기회점수순</option>
+            <option value="demand">수요순</option>
+            <option value="monthly">월발행 적은순</option>
+            <option value="growth">상승률순</option>
+          </select>
+          <button id="csvBtn" class="btn sm line">CSV</button>
+        </div>
+      </div>
+      <p class="sumline" id="sumLine"></p>
+      <div id="results" class="grid" style="margin-top:8px"></div>
+    </div>
+  </section>
+
+  <!-- 보관함 -->
+  <section id="view-saved" class="view">
+    <div class="panel">
+      <h2>보관함 <small id="savedCount"></small></h2>
+      <div class="toolbar" style="margin-top:0">
+        <div class="seg" id="stSeg"></div>
+        <button id="savedCsv" class="btn sm line">CSV</button>
+      </div>
+      <div id="savedList" class="list"></div>
+    </div>
+  </section>
+
+  <!-- 내 블로그 -->
+  <section id="view-myblog" class="view">
+    <div class="panel">
+      <h2>내 블로그 노출 확인 <small>블로그 검색 상위 100위 이내</small></h2>
+      <div class="row">
+        <input id="blogIdInp" class="inp" placeholder="블로그 ID 또는 주소 (예: mzsun 또는 blog.naver.com/mzsun)" autocomplete="off">
+        <button id="blogIdSave" class="btn sm ghost">저장</button>
+      </div>
+      <textarea id="rankKws" style="margin-top:10px" placeholder="키워드를 줄바꿈 또는 쉼표로 입력 (최대 15개)"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button id="loadPublished" class="btn sm line">발행완료 키워드 불러오기</button>
+        <button id="rankBtn" class="btn" style="margin-left:auto">순위 확인</button>
+      </div>
+      <p class="hint" style="margin-top:8px">블로그 주소가 정확히 일치하는 글만 인정합니다(이름이 비슷한 다른 블로그는 제외). 결과는 직전 확인 결과와 비교됩니다.</p>
+    </div>
+    <div class="panel hidden" id="rankPanel">
+      <h2>결과 <small id="rankWhen"></small></h2>
+      <div style="overflow-x:auto"><table class="rank" id="rankTable"></table></div>
+    </div>
+  </section>
+
+  <!-- 설정 -->
+  <section id="view-settings" class="view">
+    <div class="panel">
+      <h2>연결 상태</h2>
+      <dl class="kv" id="statusKv"></dl>
+      <div class="row" style="margin-top:12px">
+        <button id="copyUid" class="btn sm ghost">UID 복사</button>
+        <button id="recheck" class="btn sm line">다시 확인</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>오늘 사용량 <small>이 기기 기준 추정 · 한국시간 자정 초기화</small></h2>
+      <div id="meterBox"></div>
+    </div>
+    <div class="panel">
+      <h2>기본값</h2>
+      <div class="opts" style="margin-top:0">
+        <label>기본 수식어 <select id="defMod" class="sel"></select></label>
+        <label>기본 후보 수 <select id="defCnt" class="sel"><option>20</option><option>30</option><option>40</option></select></label>
+        <button id="saveDefaults" class="btn sm ghost">저장</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>제외 키워드 <small>오늘의 주제에서 ⊘로 뺀 키워드 · 누르면 복원</small></h2>
+      <div id="excludeChips" class="chips" style="margin-top:0"></div>
+    </div>
+    <div class="panel">
+      <h2>캐시·계정</h2>
+      <p class="hint" style="margin-bottom:10px">같은 키워드는 6시간 동안 이 기기에 저장된 결과를 재사용해 호출 한도를 아낍니다.</p>
+      <div class="row">
+        <button id="clearCache" class="btn sm line">캐시 비우기</button>
+        <button id="logoutBtn" class="btn sm warn">로그아웃</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="modal" class="modal hidden"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+
+<script type="module">
+/* ══════════════════════════════════════════════════════════
+   CONFIG — 배포 전 입력
+   Firebase 콘솔 → 프로젝트 설정 → 내 앱(웹)의 값을 그대로 복사
+   (content-radar index.html에 넣은 값과 같은 프로젝트입니다)
+══════════════════════════════════════════════════════════ */
+const CONFIG = {
+  WORKER_URL: 'https://keyword-radar-relay.mjmsun1771.workers.dev',
+  FIREBASE: {
+    apiKey: 'AIzaSyCFrbfichjEBNIvUQ-pAGMz5XVE8MjIzq8',
+    authDomain: 'mzsun-blog.firebaseapp.com',
+    projectId: 'mzsun-blog',
+    appId: '1:149770016905:web:ee8145935f01523f124e58',
+  },
+};
+
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, addDoc, query, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+/* ══════════════════════════════════════════════════════════
+   기본 유틸
+══════════════════════════════════════════════════════════ */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const norm = s => String(s || '').replace(/\s+/g, '').toLowerCase();
+const clean = s => String(s || '').replace(/\s+/g, ' ').trim();
+const fmt = n => (n === null || n === undefined || Number.isNaN(n)) ? '-' : Math.round(n).toLocaleString('ko-KR');
+const pct = g => (g === null || g === undefined) ? '-' : `${g >= 0 ? '+' : ''}${Math.round(g * 100)}%`;
+const DAY = 86400000;
+const KST = 9 * 3600000;
+
+function kstNow() { return new Date(Date.now() + KST); }
+function kstToday() { return kstNow().toISOString().slice(0, 10); }
+function kstYear() { return kstNow().getUTCFullYear(); }
+function kstMonth() { return kstNow().getUTCMonth() + 1; }
+function kstStamp() { return kstNow().toISOString().slice(0, 16).replace('T', ' '); }
+/** 최근 52주(직전 일요일까지 마감된 주) */
+function trendRange() {
+  const d = kstNow();
+  const dow = d.getUTCDay();                       // 0=일
+  const end = new Date(d.getTime() - (dow === 0 ? 7 : dow) * DAY);   // 직전 일요일
+  const start = new Date(end.getTime() - (7 * 52 - 1) * DAY);        // 월요일
+  return { startDate: start.toISOString().slice(0, 10), endDate: end.toISOString().slice(0, 10) };
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 2200);
+}
+async function copyText(s) {
+  try { await navigator.clipboard.writeText(s); toast('복사했습니다'); }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = s; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('복사했습니다'); } catch { toast('복사 실패'); }
+    ta.remove();
+  }
+}
+function downloadCsv(name, rows) {
+  const body = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const blob = new Blob(['﻿' + body], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ── 로컬 캐시 (6시간) ── */
+const CP = 'kr2:';
+function cGet(key, ttl) {
+  try {
+    const raw = localStorage.getItem(CP + key);
+    if (!raw) return null;
+    const o = JSON.parse(raw);
+    if (Date.now() - o.t > ttl) { localStorage.removeItem(CP + key); return null; }
+    return o.d;
+  } catch { return null; }
+}
+function cSet(key, d) {
+  try { localStorage.setItem(CP + key, JSON.stringify({ t: Date.now(), d })); }
+  catch { cClear(); try { localStorage.setItem(CP + key, JSON.stringify({ t: Date.now(), d })); } catch {} }
+}
+function cClear() {
+  try { Object.keys(localStorage).filter(k => k.startsWith(CP)).forEach(k => localStorage.removeItem(k)); } catch {}
+}
+const TTL = 6 * 3600000;
+
+/* ── 호출량 계측 ── */
+function getMeter() {
+  let m = null;
+  try { m = JSON.parse(localStorage.getItem('kr2meter') || 'null'); } catch {}
+  if (!m || m.date !== kstToday()) m = { date: kstToday(), search: 0, trend: 0, ad: 0 };
+  return m;
+}
+function addMeter(x) {
+  const m = getMeter();
+  m.search += x.search || 0; m.trend += x.trend || 0; m.ad += x.ad || 0;
+  try { localStorage.setItem('kr2meter', JSON.stringify(m)); } catch {}
+}
+
+/* ══════════════════════════════════════════════════════════
+   상태
+══════════════════════════════════════════════════════════ */
+const MOD_SETS = {
+  info:   { label: '정보형',       words: ['방법', '뜻', '하는법', '기간', '비용', '조건', '주의사항', '추천', '종류', '차이'] },
+  policy: { label: '정책·지원금',  words: ['신청', '신청방법', '대상', '자격', '조건', '지급일', '금액', '서류', '기간', '{Y}'] },
+  shop:   { label: '쇼핑·리뷰',    words: ['추천', '후기', '가격', '비교', '순위', '가성비', '단점', '사용법', '{Y}'] },
+  life:   { label: '생활·여행',    words: ['추천', '코스', '가볼만한곳', '맛집', '주차', '시간', '요금', '후기', '{Y}'] },
+  none:   { label: '사용 안 함',   words: [] },
+};
+const TYPES = ['전체', '이슈', '시즌', '에버그린', '일반'];
+const STATUSES = ['후보', '작성예정', '발행완료', '보류'];
+
+const S = {
+  user: null, status: null, adMode: false,
+  seed: '', candidates: [], adMap: {},
+  rows: [], periods: [], anchorSeries: [], anchorMissing: false,
+  typeFilter: '전체', sort: 'score',
+  saved: new Map(), stFilter: '전체',
+  settings: { blogId: '', modSet: 'info', count: 30 },
+  runs: [],
+};
+
+/* ══════════════════════════════════════════════════════════
+   Firebase
+══════════════════════════════════════════════════════════ */
+const configured = !String(CONFIG.FIREBASE.apiKey).startsWith('여기에');
+let app, auth, db;
+if (configured) {
+  app = initializeApp(CONFIG.FIREBASE);
+  auth = getAuth(app);
+  db = getFirestore(app);
+} else {
+  $('#configWarn').classList.remove('hidden');
+}
+if (/KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent)) $('#inappWarn').classList.remove('hidden');
+
+const base = () => `keywordRadar/${S.user.uid}`;
+const docId = k => (norm(k).replace(/[/]/g, '_').slice(0, 140) || 'x');
+
+$('#loginBtn').onclick = async () => {
+  if (!configured) { toast('CONFIG 값을 먼저 입력하세요'); return; }
+  const provider = new GoogleAuthProvider();
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment'].includes(e.code)) {
+      await signInWithRedirect(auth, provider);
+    } else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+      toast('로그인 실패: ' + (e.code || e.message));
+    }
+  }
+};
+if (configured) {
+  getRedirectResult(auth).catch(() => {});
+  onAuthStateChanged(auth, async user => {
+    S.user = user;
+    if (!user) { showLogin(true); return; }
+    showLogin(false);
+    $('#userBox').innerHTML = `${user.photoURL ? `<img src="${esc(user.photoURL)}" alt="">` : ''}<span>${esc(user.displayName || '')}</span>`;
+    await Promise.all([checkStatus(), loadSettings(), loadSaved(), loadRuns(), loadToday()]);
+  });
+}
+function showLogin(on) {
+  $('#view-login').classList.toggle('on', on);
+  $('#tabs').classList.toggle('hidden', on);
+  if (on) { $$('.view').forEach(v => v.id !== 'view-login' && v.classList.remove('on')); $('#userBox').innerHTML = ''; }
+  else go('today');
+}
+
+/* ── Worker 호출 ── */
+async function api(path, body) {
+  if (!S.user) throw new Error('로그인이 필요합니다.');
+  const token = await S.user.getIdToken();
+  let res;
+  try {
+    res = await fetch(CONFIG.WORKER_URL + path, {
+      method: body ? 'POST' : 'GET',
+      headers: { Authorization: 'Bearer ' + token, ...(body ? { 'Content-Type': 'application/json' } : {}) },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    throw new Error('Worker에 연결할 수 없습니다. 주소와 배포 상태를 확인하세요.');
+  }
+  let data;
+  try { data = await res.json(); } catch { data = { error: `응답 형식 오류(${res.status})` }; }
+  if (!res.ok) throw new Error(data.error || `요청 실패(${res.status})`);
+  if (data.meter) addMeter(data.meter);
+  return data;
+}
+
+async function checkStatus() {
+  try {
+    S.status = await api('/api/status');
+    S.adMode = !!S.status.ad;
+  } catch (e) {
+    S.status = { error: e.message };
+    S.adMode = false;
+  }
+  const b = $('#modeBadge');
+  if (S.status.error) { b.textContent = '연결 오류'; b.className = 'badge'; }
+  else if (!S.status.allowed) { b.textContent = '권한 없음'; b.className = 'badge'; }
+  else if (S.adMode) { b.textContent = '정밀 모드'; b.className = 'badge pro'; }
+  else { b.textContent = '간이 모드'; b.className = 'badge'; }
+  renderSettings();
+  if (S.status.error || !S.status.allowed) go('settings');
+}
+
+/* ── 설정 / 보관함 / 이력 로드 ── */
+async function loadSettings() {
+  try {
+    const snap = await getDoc(doc(db, `${base()}/meta/settings`));
+    if (snap.exists()) Object.assign(S.settings, snap.data());
+  } catch {}
+  $('#blogIdInp').value = S.settings.blogId || '';
+  $('#modSel').value = S.settings.modSet || 'info';
+  $('#defMod').value = S.settings.modSet || 'info';
+  $('#cntSel').value = String(S.settings.count || 30);
+  $('#defCnt').value = String(S.settings.count || 30);
+}
+async function saveSettings(patch, quiet) {
+  Object.assign(S.settings, patch);
+  try { await setDoc(doc(db, `${base()}/meta/settings`), S.settings, { merge: true }); if (!quiet) toast('저장했습니다'); }
+  catch (e) { toast('저장 실패: ' + e.code); }
+}
+async function loadSaved() {
+  S.saved.clear();
+  try {
+    const snap = await getDocs(collection(db, `${base()}/topics`));
+    snap.forEach(d => S.saved.set(d.id, { id: d.id, ...d.data() }));
+  } catch (e) { toast('보관함을 불러오지 못했습니다: ' + e.code); }
+  renderSaved();
+}
+async function loadRuns() {
+  try {
+    const snap = await getDocs(query(collection(db, `${base()}/runs`), orderBy('at', 'desc'), limit(8)));
+    S.runs = snap.docs.map(d => d.data());
+  } catch { S.runs = []; }
+  renderRuns();
+}
+function renderRuns() {
+  const seen = new Set();
+  const seeds = S.runs.map(r => r.seed).filter(s => s && !seen.has(s) && seen.add(s));
+  $('#recentRuns').innerHTML = seeds.length
+    ? `<span class="hint" style="align-self:center">최근:</span>` + seeds.map(s => `<span class="chip plain" data-seed="${esc(s)}">${esc(s)}</span>`).join('')
+    : '';
+}
+$('#recentRuns').onclick = e => {
+  const c = e.target.closest('[data-seed]');
+  if (c) { $('#seedInp').value = c.dataset.seed; makeCandidates(); }
+};
+
+/* ══════════════════════════════════════════════════════════
+   탭 이동
+══════════════════════════════════════════════════════════ */
+function go(view) {
+  $$('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + view));
+  $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.view === view));
+  if (view === 'settings') renderSettings();
+  if (view === 'saved') renderSaved();
+  window.scrollTo(0, 0);
+}
+$('#tabs').onclick = e => { const b = e.target.closest('button'); if (b) go(b.dataset.view); };
+
+/* ══════════════════════════════════════════════════════════
+   ① 후보 키워드 만들기
+══════════════════════════════════════════════════════════ */
+const STOP = new Set(('그리고 그러나 하지만 그래서 있는 없는 하는 되는 위한 대한 통해 관련 이번 오늘 내일 지금 진짜 정말 너무 아주 가장 모든 이렇게 그냥 바로 함께 우리 저의 제가 내가 나의 '
+  + '및 등 수 것 더 꼭 또 왜 좀 잘 안 못 총정리 정리 포스팅 블로그 내용 이야기 소개 공유 꿀팁 필독 완벽 최신 업데이트 알아보기 알아보자 알아봅시다 했어요 했습니다 입니다 있어요').split(' '));
+const JOSA = /(으로|에서|에게|까지|부터|이라는|라는|이란|하는|하기|했던|해요|합니다|입니다|은|는|을|를|의|에|로|와|과|도|만)$/;
+
+function tokens(title) {
+  return String(title).replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/).map(t => t.trim()).filter(Boolean);
+}
+function stem(t) {
+  if (t.length > 2) {
+    const s = t.replace(JOSA, '');
+    if (s.length >= 2) return s;
+  }
+  return t;
+}
+/** 블로그 상위·최신 글 제목에서 시드와 함께 쓰이는 표현을 추출 */
+function extractFromTitles(seed, titles) {
+  const seedN = norm(seed);
+  const seedToks = tokens(seed).map(t => t.toLowerCase());
+  const df = new Map();
+  const phrase = new Map();
+  const seenTitle = new Set();
+  const bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
+  const isNoise = t => t.length < 2 || STOP.has(t) || (/^\d+$/.test(t) && !/^20\d\d$/.test(t));
+
+  for (const title of titles) {
+    const key = norm(title);
+    if (!key || seenTitle.has(key)) continue;
+    seenTitle.add(key);
+    const toks = tokens(title).map(stem);
+    const low = toks.map(t => t.toLowerCase());
+    const uniq = new Set();
+    for (let i = 0; i < low.length; i++) {
+      const t = low[i];
+      // 시드를 포함하는 합성어 (예: 실업급여신청방법)
+      if (t !== seedN && t.includes(seedN) && t.length <= seedN.length + 6) bump(phrase, toks[i]);
+      // 시드 바로 뒤 단어 (예: 실업급여 + 조건)
+      let end = -1;
+      if (t.includes(seedN)) end = i;
+      else if (seedToks.length > 1 && low.slice(i, i + seedToks.length).join('') === seedN) end = i + seedToks.length - 1;
+      if (end >= 0) {
+        const next = low[end + 1];
+        if (next && !isNoise(next) && !next.includes(seedN)) bump(phrase, `${seed} ${toks[end + 1]}`);
+      }
+      // 함께 쓰인 단어 (문서 빈도)
+      if (!isNoise(t) && !seedN.includes(t) && !t.includes(seedN) && !seedToks.includes(t)) uniq.add(toks[i]);
+    }
+    uniq.forEach(t => bump(df, t));
+  }
+  const out = [];
+  [...phrase.entries()].filter(([, c]) => c >= 2).sort((a, b) => b[1] - a[1]).forEach(([p]) => out.push(p));
+  [...df.entries()].filter(([, c]) => c >= 3).sort((a, b) => b[1] - a[1]).slice(0, 40).forEach(([t]) => out.push(`${seed} ${t}`));
+  return out;
+}
+function mergeCandidates(seed, groups, count) {
+  const seen = new Set();
+  const out = [];
+  const push = k => {
+    const c = clean(k);
+    const n = norm(c);
+    if (!c || seen.has(n) || out.length >= count) return;
+    seen.add(n);
+    out.push(c);
+  };
+  push(seed);
+  groups.forEach(g => g.forEach(push));
+  return out;
+}
+
+$('#candBtn').onclick = makeCandidates;
+$('#seedInp').addEventListener('keydown', e => { if (e.key === 'Enter') makeCandidates(); });
+
+async function makeCandidates() {
+  const seed = clean($('#seedInp').value);
+  if (!seed) { toast('시드 키워드를 입력하세요'); return; }
+  if (seed.length > 30) { toast('시드는 짧은 주제어로 입력하세요'); return; }
+  const count = parseInt($('#cntSel').value, 10) || 30;
+  const modKey = $('#modSel').value;
+  const btn = $('#candBtn');
+  btn.disabled = true; btn.textContent = '추출 중…';
+  try {
+    S.seed = seed;
+    S.adMap = {};
+    const Y = kstYear();
+    const mods = (MOD_SETS[modKey]?.words || []).map(w => (w === '{Y}' ? `${seed} ${Y}` : `${seed} ${w}`));
+
+    if (S.adMode) {
+      const r = await api('/api/ad', { hint: seed, limit: 150 });
+      r.list.forEach(x => { S.adMap[norm(x.keyword)] = x; });
+      const rel = r.list.map(x => x.keyword);
+      S.candidates = mergeCandidates(seed, [rel.slice(0, Math.ceil((count - 1) * 0.75)), mods, rel], count);
+    } else {
+      const ck = 'titles:' + norm(seed);
+      let titles = cGet(ck, TTL);
+      if (!titles) {
+        const [a, b] = await Promise.all([
+          api('/api/blog', { query: seed, display: 100, sort: 'sim' }),
+          api('/api/blog', { query: seed, display: 100, sort: 'date' }),
+        ]);
+        titles = [...a.items, ...b.items].map(i => i.title);
+        cSet(ck, titles);
+      }
+      const ext = extractFromTitles(seed, titles);
+      const share = Math.ceil((count - 1) * 0.65);
+      S.candidates = mergeCandidates(seed, [ext.slice(0, share), mods, ext.slice(share)], count);
+    }
+    renderCandidates();
+    $('#candPanel').classList.remove('hidden');
+    $('#candPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    toast(e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '후보 뽑기';
+  }
+}
+
+function renderCandidates() {
+  $('#candCount').textContent = `${S.candidates.length}개`;
+  $('#candChips').innerHTML = S.candidates.map((k, i) =>
+    `<span class="chip${i === 0 ? ' seed' : ''}">${esc(k)}${i === 0 ? '' : `<button data-del="${i}" aria-label="삭제">×</button>`}</span>`).join('');
+  $('#runBtn').textContent = `분석 실행 (${S.candidates.length}개)`;
+  $('#runBtn').disabled = S.candidates.length < 2;
+}
+$('#candChips').onclick = e => {
+  const b = e.target.closest('[data-del]');
+  if (!b) return;
+  S.candidates.splice(+b.dataset.del, 1);
+  renderCandidates();
+};
+function addCandidates() {
+  const vals = $('#addInp').value.split(/[,\n]/).map(clean).filter(Boolean);
+  const seen = new Set(S.candidates.map(norm));
+  let added = 0;
+  for (const v of vals) {
+    if (S.candidates.length >= 40) { toast('후보는 최대 40개입니다'); break; }
+    if (!seen.has(norm(v))) { S.candidates.push(v); seen.add(norm(v)); added++; }
+  }
+  $('#addInp').value = '';
+  if (added) renderCandidates();
+}
+$('#addBtn').onclick = addCandidates;
+$('#addInp').addEventListener('keydown', e => { if (e.key === 'Enter') addCandidates(); });
+
+/* ══════════════════════════════════════════════════════════
+   ② 분석 실행
+══════════════════════════════════════════════════════════ */
+function progress(p, msg, sel = '#prog') {
+  const box = $(sel);
+  box.classList.remove('hidden');
+  box.querySelector('i').style.width = Math.round(p * 100) + '%';
+  box.querySelector('p').textContent = msg;
+}
+
+$('#runBtn').onclick = runAnalysis;
+
+async function runAnalysis() {
+  const kws = S.candidates.slice();
+  const seed = S.seed || kws[0];
+  if (kws.length < 2) return;
+  const btn = $('#runBtn');
+  btn.disabled = true;
+  try {
+    /* 1) 공급: 블로그 발행량 */
+    const supply = {};
+    const missS = [];
+    kws.forEach(k => { const c = cGet('sup:' + norm(k), TTL); if (c) supply[norm(k)] = c; else missS.push(k); });
+    progress(0.05, `블로그 발행량 조회 중 (${kws.length - missS.length}/${kws.length} 캐시)`);
+    for (let i = 0; i < missS.length; i += 12) {
+      const r = await api('/api/supply', { keywords: missS.slice(i, i + 12) });
+      r.results.forEach(x => { if (!x.error) cSet('sup:' + norm(x.keyword), x); supply[norm(x.keyword)] = x; });
+      progress(0.05 + 0.4 * Math.min(1, (i + 12) / missS.length), '블로그 발행량 조회 중');
+    }
+
+    /* 2) 수요: 검색어트렌드 52주 (시드 평균 = 100) */
+    const range = trendRange();
+    const dk = k => `dem:${norm(seed)}:${norm(k)}:${range.endDate}`;
+    const ak = `demA:${norm(seed)}:${range.endDate}`;
+    let anchorPack = cGet(ak, TTL);
+    const demand = {};
+    const missD = [];
+    kws.filter(k => norm(k) !== norm(seed)).forEach(k => { const c = cGet(dk(k), TTL); if (c && anchorPack) demand[norm(k)] = c; else missD.push(k); });
+    progress(0.5, '검색 수요(트렌드) 조회 중');
+    for (let i = 0; i < missD.length || (!anchorPack && i === 0); i += 40) {
+      const r = await api('/api/demand', { anchor: seed, keywords: missD.slice(i, i + 40), timeUnit: 'week', ...range });
+      if (!anchorPack || r.periods.length) {
+        anchorPack = { periods: r.periods, series: r.anchorSeries, missing: r.anchorMissing };
+        cSet(ak, anchorPack);
+      }
+      Object.entries(r.series).forEach(([k, s]) => {
+        const pack = { s, unscaled: r.flags[k] === 'unscaled' };
+        demand[norm(k)] = pack;
+        if (!r.anchorMissing) cSet(dk(k), pack);
+      });
+      progress(0.5 + 0.35 * Math.min(1, (i + 40) / Math.max(1, missD.length)), '검색 수요(트렌드) 조회 중');
+      if (!missD.length) break;
+    }
+    demand[norm(seed)] = { s: anchorPack.series, unscaled: anchorPack.missing };
+    S.periods = anchorPack.periods;
+    S.anchorSeries = anchorPack.series;
+    S.anchorMissing = !!anchorPack.missing;
+
+    /* 3) 정밀 모드: 검색량 보강 */
+    if (S.adMode) {
+      const needAd = kws.filter(k => !S.adMap[norm(k)]);
+      for (let i = 0; i < needAd.length; i += 20) {
+        progress(0.88, '월 검색량 조회 중');
+        try {
+          const r = await api('/api/ad', { keywords: needAd.slice(i, i + 20) });
+          Object.entries(r.stats).forEach(([k, v]) => { if (v) S.adMap[norm(k)] = v; });
+        } catch {}
+      }
+    }
+
+    /* 4) 계산 */
+    progress(0.95, '점수 계산 중');
+    S.rows = kws.map(k => buildRow(k, supply[norm(k)], demand[norm(k)]));
+    scoreRows(S.rows);
+    S.typeFilter = '전체';
+    renderResults();
+    progress(1, `완료 · ${kstStamp()}`);
+    saveRun(seed);
+    $('#resultWrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    toast(e.message);
+    progress(0, '오류: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ── 시계열 해석 ── */
+function analyzeSeries(s, periods) {
+  const avg = a => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
+  if (!s || !s.length) return { all: 0, last4: 0, growth: 0, cv: 0, peakMonth: 0, peakRatio: 0, type: '데이터부족' };
+  const all = avg(s);
+  const last4 = avg(s.slice(-4));
+  const prev8 = avg(s.slice(-12, -4));
+  const growth = prev8 > 0 ? last4 / prev8 - 1 : (last4 > 0 ? 1 : 0);
+  const byMonth = {};
+  periods.forEach((p, i) => { const m = +String(p).slice(5, 7); (byMonth[m] = byMonth[m] || []).push(s[i] || 0); });
+  const months = Object.entries(byMonth).map(([m, a]) => ({ m: +m, v: avg(a) }));
+  const mv = months.map(x => x.v);
+  const mMean = avg(mv);
+  const sd = Math.sqrt(avg(mv.map(v => (v - mMean) ** 2)));
+  const cv = mMean > 0 ? sd / mMean : 0;
+  const peak = months.reduce((a, b) => (b.v > a.v ? b : a), { m: 0, v: -1 });
+  const peakRatio = mMean > 0 ? peak.v / mMean : 0;
+  let type = '일반';
+  if (all <= 0.5) type = '데이터부족';
+  else if (growth >= 0.5 && last4 >= 1.3 * all) type = '이슈';
+  else if (peakRatio >= 1.8) type = '시즌';
+  else if (cv <= 0.35) type = '에버그린';
+  return { all, last4, prev8, growth, cv, peakMonth: peak.m, peakRatio, type };
+}
+
+function buildRow(k, sup, dem) {
+  const sa = analyzeSeries(dem ? dem.s : [], S.periods);
+  const ad = S.adMap[norm(k)] || null;
+  const row = {
+    keyword: k,
+    isSeed: norm(k) === norm(S.seed),
+    series: dem ? dem.s : [],
+    unscaled: !!(dem && dem.unscaled),
+    ...sa,
+    demandIdx: sa.last4,
+    total: sup && !sup.error ? sup.total : null,
+    monthly: sup && !sup.error ? sup.monthly : null,
+    method: sup ? sup.method : null,
+    last7: sup && !sup.error ? sup.last7 : null,
+    latestDays: sup && !sup.error ? sup.latestDays : null,
+    top: sup && !sup.error ? sup.top : [],
+    supErr: sup && sup.error ? sup.error : null,
+    adTotal: ad ? ad.total : null,
+    adPc: ad ? ad.pc : null,
+    adMobile: ad ? ad.mobile : null,
+    comp: ad ? ad.comp : null,
+  };
+  row.demand = S.adMode && row.adTotal !== null ? row.adTotal : row.demandIdx;
+  row.satPct = S.adMode && row.adTotal ? Math.round((row.monthly || 0) / row.adTotal * 1000) / 10 : null;
+  // 시즌 발행 시점
+  if (row.type === '시즌' && row.peakMonth) {
+    const prep = row.peakMonth === 1 ? 12 : row.peakMonth - 1;
+    const until = (row.peakMonth - kstMonth() + 12) % 12;
+    row.seasonSoon = until >= 1 && until <= 2;
+    row.seasonNote = `${row.peakMonth}월 피크 · ${prep}월 발행 권장${row.seasonSoon ? ' · 지금 준비 시기' : ''}`;
+  }
+  return row;
+}
+
+/** 기회점수 = 수요↑ + 공급↓ + (상승 또는 시즌 임박) + 최신글 공백 */
+function scoreRows(rows) {
+  const ln = v => Math.log10(1 + Math.max(0, v || 0));
+  const scaler = arr => {
+    const mn = Math.min(...arr);
+    const mx = Math.max(...arr);
+    return v => (mx > mn ? (v - mn) / (mx - mn) : 0.5);
+  };
+  const dN = scaler(rows.map(r => ln(r.demand)));
+  const sN = scaler(rows.map(r => ln(r.monthly)));
+  rows.forEach(r => {
+    const D = dN(ln(r.demand));
+    const Sx = sN(ln(r.monthly));
+    const R = Math.max(0, Math.min(1, (r.growth + 0.3) / 1.3));
+    const T = r.type === '시즌' && r.seasonSoon ? 1 : 0;
+    const M = Math.max(R, T);
+    const F = r.latestDays === null ? 0.5 : r.latestDays >= 14 ? 1 : r.latestDays >= 3 ? 0.5 : 0;
+    let sc;
+    if (S.adMode && r.satPct !== null) {
+      const sat = 1 - Math.min(1, Math.log10(1 + r.satPct) / Math.log10(301));
+      sc = 0.35 * D + 0.2 * (1 - Sx) + 0.25 * sat + 0.12 * M + 0.08 * F;
+    } else {
+      sc = 0.45 * D + 0.35 * (1 - Sx) + 0.12 * M + 0.08 * F;
+    }
+    if (r.type === '데이터부족') sc = Math.min(sc, 0.2);
+    if (r.supErr) sc = Math.min(sc, 0.3);
+    r.score = Math.round(sc * 100);
+    r.grade = r.score >= 75 ? 'S' : r.score >= 60 ? 'A' : r.score >= 45 ? 'B' : 'C';
+    r.compLv = Sx < 0.34 ? '낮음' : Sx < 0.67 ? '보통' : '높음';
+  });
+}
+
+/** 오늘의 추천: 이슈 최대 3 + 시즌/에버그린 7, 부족하면 일반으로 채움 */
+function pickTop(rows) {
+  const sorted = rows.filter(r => r.type !== '데이터부족').sort((a, b) => b.score - a.score);
+  const picks = [];
+  const add = r => { if (picks.length < 10 && !picks.includes(r)) picks.push(r); };
+  sorted.filter(r => r.type === '이슈').slice(0, 3).forEach(add);
+  sorted.filter(r => r.type === '시즌' || r.type === '에버그린').slice(0, 10 - picks.length).forEach(add);
+  sorted.forEach(add);
+  return picks.sort((a, b) => b.score - a.score);
+}
+
+/* ══════════════════════════════════════════════════════════
+   ③ 결과 화면
+══════════════════════════════════════════════════════════ */
+function cardHtml(r, pick) {
+  const saved = S.saved.has(docId(r.keyword));
+  const dLabel = S.adMode && r.adTotal !== null ? '월검색' : '수요지수';
+  const g = r.growth;
+  const note = r.seasonNote
+    ? `<div class="note${r.seasonSoon ? ' hot' : ''}">${esc(r.seasonNote)}</div>`
+    : r.type === '이슈' ? `<div class="note hot" style="color:var(--issue)">최근 4주 급상승 · 빠른 발행 권장</div>`
+    : r.supErr ? `<div class="note">발행량 조회 실패</div>` : '';
+  return `<div class="card${pick ? ' pick' : ''}" data-k="${esc(r.keyword)}">
+    <div class="r1"><span class="grade g-${r.grade}">${r.grade}</span><span class="kwname">${esc(r.keyword)}${r.isSeed ? ' <small style="color:var(--mute);font-weight:500">(시드)</small>' : ''}</span><span class="type t-${r.type}">${r.type}</span><span class="score">${r.score}</span></div>
+    <div class="sbar"><i style="width:${r.score}%"></i></div>
+    <div class="metrics">
+      <div><span>${dLabel}</span><b>${fmt(r.demand)}</b></div>
+      <div><span>월발행</span><b>${fmt(r.monthly)}${r.method === 'estimate' ? '<small>*</small>' : ''}</b></div>
+      <div><span>7일발행</span><b>${fmt(r.last7)}</b></div>
+      <div><span>상승률</span><b class="${g > 0.05 ? 'up' : g < -0.05 ? 'down' : ''}">${pct(g)}</b></div>
+    </div>
+    ${note}
+    <div class="acts"><button data-act="detail">상세</button><button data-act="save" class="${saved ? 'saved' : ''}">${saved ? '★ 저장됨' : '☆ 저장'}</button><button data-act="copy">복사</button></div>
+  </div>`;
+}
+
+function renderResults() {
+  $('#resultWrap').classList.remove('hidden');
+  const warn = [];
+  if (S.anchorMissing) warn.push('시드 키워드의 검색어트렌드 데이터가 없어 키워드 간 수요 비교가 정확하지 않습니다. 더 넓은 시드로 다시 시도하세요.');
+  if (!S.adMode) warn.push('간이 모드: 수요지수는 절대 검색량이 아니라 <b>시드 키워드 52주 평균 = 100</b> 기준의 상대값입니다.');
+  $('#resultWarn').innerHTML = warn.map((w, i) => `<div class="${i === 0 && S.anchorMissing ? 'warnbox' : 'infobox'}">${w}</div>`).join('');
+
+  $('#picks').innerHTML = pickTop(S.rows).map((r, i) => {
+    const saved = S.saved.has(docId(r.keyword));
+    const sub = r.seasonNote || (r.type === '이슈' ? '최근 4주 급상승 · 빠른 발행 권장' : `월발행 ${fmt(r.monthly)} · 상승 ${pct(r.growth)}`);
+    return `<div class="prow" data-k="${esc(r.keyword)}" data-act="detail">
+      <span class="no">${i + 1}</span><span class="grade g-${r.grade}">${r.grade}</span>
+      <span class="kwname">${esc(r.keyword)}<span class="sub"><span class="type t-${r.type}" style="font-size:10.5px;padding:1px 6px;margin-right:4px">${r.type}</span>${esc(sub)}</span></span>
+      <span class="score">${r.score}</span>
+      <button class="star${saved ? ' on' : ''}" data-act="save" aria-label="저장">${saved ? '★' : '☆'}</button>
+    </div>`;
+  }).join('') || '<div class="empty">추천할 키워드가 없습니다.</div>';
+
+  const counts = {};
+  S.rows.forEach(r => { counts[r.type] = (counts[r.type] || 0) + 1; });
+  $('#typeSeg').innerHTML = TYPES.map(t =>
+    `<button data-t="${t}" class="${S.typeFilter === t ? 'on' : ''}">${t} ${t === '전체' ? S.rows.length : (counts[t] || 0)}</button>`).join('');
+
+  let list = S.rows.filter(r => S.typeFilter === '전체' || r.type === S.typeFilter);
+  const sorters = {
+    score: (a, b) => b.score - a.score,
+    demand: (a, b) => (b.demand || 0) - (a.demand || 0),
+    monthly: (a, b) => (a.monthly ?? 1e12) - (b.monthly ?? 1e12),
+    growth: (a, b) => b.growth - a.growth,
+  };
+  list = list.slice().sort(sorters[S.sort]);
+  $('#results').innerHTML = list.map(r => cardHtml(r, false)).join('') || '<div class="empty">해당 유형이 없습니다.</div>';
+  $('#sumLine').textContent = `시드 "${S.seed}" · 후보 ${S.rows.length}개 · ${S.adMode ? '정밀' : '간이'} 모드 · 월발행 * 표시는 추정값`;
+}
+$('#typeSeg').onclick = e => { const b = e.target.closest('[data-t]'); if (b) { S.typeFilter = b.dataset.t; renderResults(); } };
+$('#sortSel').onchange = e => { S.sort = e.target.value; renderResults(); };
+$('#csvBtn').onclick = () => {
+  const rows = [['키워드', '등급', '기회점수', '유형', S.adMode ? '월검색량' : '수요지수(시드=100)', '월발행', '7일발행', '누적문서', '상승률(%)', '경쟁강도', '시즌메모']];
+  S.rows.slice().sort((a, b) => b.score - a.score).forEach(r => rows.push([
+    r.keyword, r.grade, r.score, r.type, Math.round(r.demand || 0), r.monthly ?? '', r.last7 ?? '', r.total ?? '',
+    Math.round(r.growth * 100), r.compLv, r.seasonNote || '']));
+  downloadCsv(`키워드레이더_${S.seed}_${kstToday()}.csv`, rows);
+};
+
+function rowByKey(k) {
+  return S.rows.find(r => r.keyword === k) || (S.today ? S.today.rows.find(r => r.keyword === k) : null);
+}
+function onCardClick(e) {
+  const btn = e.target.closest('[data-act]');
+  if (!btn) return;
+  e.stopPropagation();
+  const k = btn.closest('[data-k]').dataset.k;
+  const r = rowByKey(k);
+  if (!r) return;
+  if (btn.dataset.act === 'exclude') excludeKeyword(r);
+  else if (btn.dataset.act === 'copy') copyText(k);
+  else if (btn.dataset.act === 'save') toggleSave(r);
+  else if (btn.dataset.act === 'detail') openDetail(r);
+}
+$('#picks').onclick = onCardClick;
+$('#results').onclick = onCardClick;
+
+/* ── 보관 ── */
+function topicData(r) {
+  const daily = r.mode === 'daily';
+  return {
+    keyword: r.keyword, seed: daily ? '오늘의 주제' : S.seed, score: r.score, grade: r.grade, type: r.type,
+    demand: Math.round(r.demand || 0), demandKind: daily ? '관심도' : S.adMode && r.adTotal !== null ? '월검색량' : '수요지수',
+    monthly: r.monthly ?? null, last7: r.last7 ?? null, growth: Math.round(r.growth * 100),
+    seasonNote: r.seasonNote || '', analyzedAt: kstStamp(),
+  };
+}
+async function toggleSave(r, memo) {
+  const id = docId(r.keyword);
+  const ref = doc(db, `${base()}/topics/${id}`);
+  try {
+    if (S.saved.has(id) && memo === undefined) {
+      await deleteDoc(ref);
+      S.saved.delete(id);
+      toast('보관함에서 뺐습니다');
+    } else {
+      const prev = S.saved.get(id) || {};
+      const data = { ...topicData(r), status: prev.status || '후보', memo: memo ?? prev.memo ?? '', savedAt: prev.savedAt || kstStamp(), updatedAt: serverTimestamp() };
+      await setDoc(ref, data, { merge: true });
+      S.saved.set(id, { id, ...data });
+      toast('보관함에 저장했습니다');
+    }
+    if (r.mode === 'daily') renderToday(); else renderResults();
+  } catch (e) { toast('저장 실패: ' + (e.code || e.message)); }
+}
+async function saveRun(seed) {
+  try {
+    const top = S.rows.slice().sort((a, b) => b.score - a.score).slice(0, 10).map(r => ({ k: r.keyword, s: r.score, t: r.type }));
+    await addDoc(collection(db, `${base()}/runs`), { seed, mode: S.adMode ? '정밀' : '간이', count: S.rows.length, top, at: serverTimestamp(), atKst: kstStamp() });
+    S.runs.unshift({ seed });
+    renderRuns();
+  } catch {}
+}
+
+/* ── 상세 ── */
+function openModal(html) { $('#sheet').innerHTML = html; $('#modal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+function closeModal() { $('#modal').classList.add('hidden'); document.body.style.overflow = ''; }
+$('#modal').onclick = e => { if (e.target.id === 'modal' || e.target.closest('.close')) closeModal(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function openDetail(r) {
+  const saved = S.saved.get(docId(r.keyword));
+  const daily = r.mode === 'daily';
+  const gnews = daily && r.gnews && r.gnews.length
+    ? `<h4>Google 트렌드 관련 뉴스 제목</h4><ul class="tl">${r.gnews.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '';
+  const adRows = S.adMode && r.adTotal !== null
+    ? `<dt>월 검색량</dt><dd>PC ${fmt(r.adPc)} · 모바일 ${fmt(r.adMobile)} · 합계 ${fmt(r.adTotal)}</dd><dt>포화도</dt><dd>${r.satPct ?? '-'}% (월발행 ÷ 월검색)</dd><dt>광고 경쟁</dt><dd>${esc(r.comp || '-')}</dd>` : '';
+  openModal(`
+    <h3><span class="grade g-${r.grade}">${r.grade}</span>${esc(r.keyword)}<span class="type t-${r.type}">${r.type}</span><button class="close" aria-label="닫기">×</button></h3>
+    <canvas class="spark" id="spark"></canvas>
+    <p class="hint" style="margin-top:4px">${daily ? '최근 35일 일별 검색 추이 (네이버 검색어트렌드)' : `최근 52주 검색 추이 · 점선 = 시드 평균(100)${r.unscaled ? ' · 기준 환산 불가(상대값)' : ''}`}</p>
+    <h4>지표</h4>
+    <dl class="kv">
+      <dt>기회점수</dt><dd><b>${r.score}</b>점 (${r.grade}등급)</dd>
+      ${daily
+        ? `<dt>검색 증가</dt><dd>최근 3일 평균이 이전 4주 평균의 <b>${r.surge ? r.surge.toFixed(1) : '-'}배</b> (${pct(r.growth)})</dd>
+           <dt>관심도</dt><dd>${fmt(r.interest)} / 100 (오늘 후보 중 상대값)</dd>
+           <dt>후보 출처</dt><dd>${(r.sources || []).map(s => `<span class="src src-${s}">${s}${s === '구글' && r.traffic ? ' ' + esc(r.traffic) : ''}</span>`).join('')}</dd>`
+        : `<dt>수요지수</dt><dd>최근 4주 ${fmt(r.last4)} · 52주 평균 ${fmt(r.all)} · 상승률 ${pct(r.growth)}</dd>`}
+      ${adRows}
+      <dt>블로그 공급</dt><dd>누적 ${fmt(r.total)} · 월 ${fmt(r.monthly)}${r.method === 'estimate' ? '(추정)' : ''} · 7일 ${fmt(r.last7)} · 경쟁강도 ${r.compLv}</dd>
+      <dt>최신 글</dt><dd>${r.latestDays === null ? '-' : r.latestDays === 0 ? '오늘' : r.latestDays + '일 전'}</dd>
+      ${r.seasonNote ? `<dt>시즌</dt><dd>${esc(r.seasonNote)}</dd>` : ''}
+    </dl>
+    ${gnews}
+    <h4>최신 블로그 글</h4>
+    <ul class="tl">${(r.top || []).map(t => `<li><a href="${esc(t.link)}" target="_blank" rel="noopener">${esc(t.title)}</a><small>${esc(t.blogger)} · ${esc(String(t.date || '').replace(/(\d{4})(\d{2})(\d{2})/, '$1.$2.$3'))}</small></li>`).join('') || '<li>없음</li>'}</ul>
+    <h4>최신 뉴스 <button class="btn sm line" id="newsBtn" style="margin-left:6px;height:28px">불러오기</button></h4>
+    <ul class="tl" id="newsList"></ul>
+    <h4>메모</h4>
+    <textarea id="memoInp" placeholder="글 방향, 제목 아이디어 등">${esc(saved?.memo || '')}</textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn line" id="dCopy">키워드 복사</button>
+      <button class="btn" id="dSave" style="flex:1">${saved ? '메모 저장' : '보관함에 저장'}</button>
+    </div>`);
+  requestAnimationFrame(() => drawSpark($('#spark'), r.series, daily ? S.today.periods : S.periods, { daily }));
+  $('#dCopy').onclick = () => copyText(r.keyword);
+  $('#dSave').onclick = async () => { await toggleSave(r, $('#memoInp').value.trim()); closeModal(); };
+  $('#newsBtn').onclick = async () => {
+    const box = $('#newsList');
+    box.innerHTML = '<li>불러오는 중…</li>';
+    try {
+      const ck = 'news:' + norm(r.keyword);
+      let d = cGet(ck, 30 * 60000);
+      if (!d) { d = await api('/api/news', { query: r.keyword }); cSet(ck, d); }
+      box.innerHTML = d.items.map(n => `<li><a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a><small>${esc(new Date(n.pubDate).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}</small></li>`).join('') || '<li>최근 뉴스 없음</li>';
+    } catch (e) { box.innerHTML = `<li>${esc(e.message)}</li>`; }
+  };
+}
+
+function drawSpark(cv, s, periods, opt = {}) {
+  if (!cv) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const g = cv.getContext('2d');
+  g.scale(dpr, dpr);
+  if (!s || !s.length || !s.some(v => v > 0)) { g.fillStyle = '#8a9795'; g.font = '13px Pretendard'; g.fillText('데이터 없음', 12, 24); return; }
+  periods = periods || [];
+  const pad = { l: opt.daily ? 10 : 34, r: 10, t: 12, b: 22 };
+  const mx = opt.daily ? Math.max(...s) * 1.15 : Math.max(110, ...s) * 1.08;
+  const x = i => pad.l + (W - pad.l - pad.r) * (i / Math.max(1, s.length - 1));
+  const y = v => pad.t + (H - pad.t - pad.b) * (1 - v / mx);
+  g.strokeStyle = '#e2e7e5'; g.lineWidth = 1; g.fillStyle = '#8a9795'; g.font = '10.5px Pretendard';
+  if (opt.daily) {
+    [0, mx / 2, mx].forEach(v => { g.beginPath(); g.moveTo(pad.l, y(v)); g.lineTo(W - pad.r, y(v)); g.stroke(); });
+    periods.forEach((p, i) => {
+      if (i % 7 === 0 || i === periods.length - 1) {
+        const lbl = `${+String(p).slice(5, 7)}/${+String(p).slice(8, 10)}`;
+        g.fillText(lbl, Math.min(Math.max(pad.l, x(i) - 10), W - 32), H - 6);
+      }
+    });
+    // 최근 3일 강조 영역
+    g.fillStyle = 'rgba(217,72,15,.07)';
+    g.fillRect(x(Math.max(0, s.length - 3)) - 4, pad.t, W - pad.r - x(Math.max(0, s.length - 3)) + 4, H - pad.t - pad.b);
+  } else {
+    [0, Math.round(mx / 2), Math.round(mx)].forEach(v => { g.beginPath(); g.moveTo(pad.l, y(v)); g.lineTo(W - pad.r, y(v)); g.stroke(); g.fillText(String(v), 4, y(v) + 4); });
+    g.setLineDash([4, 4]); g.strokeStyle = '#adb5bd'; g.beginPath(); g.moveTo(pad.l, y(100)); g.lineTo(W - pad.r, y(100)); g.stroke(); g.setLineDash([]);
+    let lastM = '';
+    periods.forEach((p, i) => {
+      const m = String(p).slice(5, 7);
+      if (m !== lastM) {
+        if (+m % 3 === 1) g.fillText(+m + '월', Math.min(Math.max(pad.l - 4, x(i) - 8), W - 30), H - 6);
+        lastM = m;
+      }
+    });
+  }
+  const grad = g.createLinearGradient(0, pad.t, 0, H - pad.b);
+  grad.addColorStop(0, 'rgba(14,143,126,.28)'); grad.addColorStop(1, 'rgba(14,143,126,0)');
+  g.beginPath(); g.moveTo(x(0), y(s[0]));
+  s.forEach((v, i) => g.lineTo(x(i), y(v)));
+  g.lineTo(x(s.length - 1), H - pad.b); g.lineTo(x(0), H - pad.b); g.closePath();
+  g.fillStyle = grad; g.fill();
+  g.beginPath(); g.moveTo(x(0), y(s[0]));
+  s.forEach((v, i) => g.lineTo(x(i), y(v)));
+  g.strokeStyle = '#0e8f7e'; g.lineWidth = 2; g.stroke();
+}
+
+/* ══════════════════════════════════════════════════════════
+   보관함
+══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   ✦ 오늘의 주제 — 시드 없이 매일 자동
+   후보: Google 트렌드 급상승 + 뉴스 헤드라인 추출 + 시즌 달력
+   측정: 검색어트렌드 최근 35일(일별) + 블로그 발행량
+══════════════════════════════════════════════════════════ */
+const ANCHOR_DAILY = '날씨';   // 묶음 간 비교용 기준어 (연중 검색량이 크고 꾸준함)
+const SEASON = {
+  1:  ['연말정산', '설 선물세트', '설 연휴', '신년운세', '난방비 절약', '독감 증상', '해돋이 명소', '겨울 여행지', '청년 지원금', '건강검진'],
+  2:  ['졸업식 꽃다발', '입학 준비물', '정월대보름', '발렌타인데이 선물', '연말정산 환급', '새학기 준비', '봄 이사', '노로바이러스'],
+  3:  ['벚꽃 개화시기', '화이트데이 선물', '미세먼지', '황사', '봄 나들이', '꽃샘추위', '알레르기 비염', '새학기 증후군'],
+  4:  ['벚꽃 명소', '봄꽃 축제', '식목일', '봄 소풍', '꽃가루 알레르기', '캠핑장 추천', '중간고사', '자동차 정기검사'],
+  5:  ['종합소득세 신고', '근로장려금', '어린이날 선물', '어버이날 선물', '스승의날 선물', '5월 연휴', '장미축제', '가정의달'],
+  6:  ['장마 시작', '현충일', '여름휴가 계획', '에어컨 청소', '모기 퇴치', '제습기 추천', '재산세', '자외선 차단제'],
+  7:  ['여름휴가', '폭염', '해수욕장 개장', '복날 음식', '계곡 추천', '재산세 납부', '식중독 예방', '장마 대비'],
+  8:  ['말복', '열대야', '개학 준비', '광복절', '전기요금 누진제', '2학기 준비', '여름 휴가지', '태풍'],
+  9:  ['추석 선물세트', '추석 연휴', '벌초', '성묘', '가을 여행', '환절기 감기', '재산세 9월', '가을 축제'],
+  10: ['단풍 시기', '단풍 명소', '독감 예방접종', '핼러윈', '억새 축제', '가을 캠핑', '환절기 비염', '수능 응원'],
+  11: ['수능', '김장', '빼빼로데이', '블랙프라이데이', '첫눈', '연말정산 미리보기', '난방비', '겨울옷 정리'],
+  12: ['크리스마스 선물', '연말 모임', '송년회', '동지 팥죽', '스키장 개장', '연말정산 준비', '겨울 축제', '해돋이 명소'],
+};
+const NEWS_STOP = new Set(('기자 단독 속보 종합 포토 영상 사진 오늘 내일 어제 올해 지난해 작년 내년 지난 이번 다음 최근 관련 위해 대해 통해 따라 대한 위한 '
+  + '했다 한다 된다 있다 없다 밝혀 밝혔다 예정 진행 개최 추진 확대 지원 신청 시행 출시 발표 축제 할인 개편 지원금 정부 국내 전국 지역 시민 주민 기업 업계 '
+  + '이후 이전 가운데 만에 당시 현재 뉴스 기사 인터뷰 칼럼 사설 논란 공개 결과 발생 확인 계획 문제 가능 강조 제공 운영 참여 마련 실시 돌입 나선다 나서 '
+  + '본격 눈길 화제 이유 방법 모습 상황 최대 최초 신규 특별 대상 기준 이상 이하 사업 서비스 프로그램 행사 시작 종료 연장 변경 도입 강화 완화 '
+  + '어떻게 무엇 누구 이것 그것 모두 함께 직접 바로 다시 계속 결국 처음 마지막 가장 매우 크게 많이 일부 전체 각종 다양한 주요 새로운').split(' '));
+
+function dailyRange() {
+  const iso = d => d.toISOString().slice(0, 10);
+  const end = new Date(kstNow().getTime() - DAY);          // 어제(한국시간)까지
+  const start = new Date(end.getTime() - 34 * DAY);        // 35일
+  return { startDate: iso(start), endDate: iso(end) };
+}
+function seasonKeywords() {
+  const m = kstMonth();
+  const next = m % 12 + 1;
+  return [...SEASON[m], ...SEASON[next].slice(0, 4)];
+}
+/** 뉴스 제목에서 여러 기사에 반복되는 표현 추출 (두 단어 우선) */
+function extractNewsTopics(titles) {
+  const df1 = new Map();
+  const df2 = new Map();
+  const bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
+  const ok = t => t.length >= 2 && t.length <= 10 && !NEWS_STOP.has(t) && !STOP.has(t) && !/\d/.test(t) && /[가-힣]/.test(t);
+  for (const title of titles) {
+    const raw = tokens(String(title).replace(/\[[^\]]*\]|\([^)]*\)|【[^】]*】/g, ' ')).map(stem);
+    const u1 = new Set(raw.filter(ok));
+    const u2 = new Set();
+    for (let i = 0; i < raw.length - 1; i++) if (ok(raw[i]) && ok(raw[i + 1]) && raw[i] !== raw[i + 1]) u2.add(raw[i] + ' ' + raw[i + 1]);
+    u1.forEach(t => bump(df1, t));
+    u2.forEach(t => bump(df2, t));
+  }
+  const bi = [...df2].filter(([, c]) => c >= 3).sort((a, b) => b[1] - a[1]).slice(0, 18).map(([k]) => k);
+  const inBi = new Set(bi.flatMap(b => b.split(' ')));
+  const uni = [...df1].filter(([t, c]) => c >= 6 && !inBi.has(t)).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([k]) => k);
+  return [...bi, ...uni];
+}
+function analyzeDaily(s) {
+  const avg = a => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
+  if (!s || !s.length) return { last3: 0, base: 0, level7: 0, surge: 0, growth: 0, type: '데이터부족' };
+  const last3 = avg(s.slice(-3));
+  const base = avg(s.slice(-31, -3));
+  const level7 = avg(s.slice(-7));
+  const surge = base > 0 ? last3 / base : (last3 > 0 ? 3 : 0);
+  let type = '유지';
+  if (level7 <= 0 && last3 <= 0) type = '데이터부족';
+  else if (surge >= 2) type = '급상승';
+  else if (surge >= 1.3) type = '상승';
+  return { last3, base, level7, surge, growth: surge - 1, type };
+}
+/** 오늘 점수 = 급상승 35% + 관심도 30% + 블로그 경쟁 낮음 25% + 출처 가중 10% */
+function scoreToday(rows) {
+  const ln = v => Math.log10(1 + Math.max(0, v || 0));
+  const scaler = arr => { const mn = Math.min(...arr), mx = Math.max(...arr); return v => (mx > mn ? (v - mn) / (mx - mn) : 0.5); };
+  const dN = scaler(rows.map(r => ln(r.level7 * 1000)));
+  const sN = scaler(rows.map(r => ln(r.monthly)));
+  const maxLv = Math.max(...rows.map(r => r.level7), 0);
+  rows.forEach(r => {
+    if (r.type === '유지' && r.sources.includes('시즌')) r.type = '시즌';
+    r.interest = maxLv > 0 ? Math.round(r.level7 / maxLv * 100) : 0;
+    r.demand = r.interest;
+    const U = Math.max(0, Math.min(1, Math.log2(Math.max(r.surge, 0.01)) / 2));   // 1배=0, 4배 이상=1
+    const D = dN(ln(r.level7 * 1000));
+    const Sx = sN(ln(r.monthly));
+    const G = r.sources.includes('구글') ? 1 : r.sources.length > 1 ? 0.8 : 0.5;
+    let sc = 0.35 * U + 0.30 * D + 0.25 * (1 - Sx) + 0.10 * G;
+    if (r.type === '데이터부족') sc = Math.min(sc, 0.15);
+    if (r.supErr) sc = Math.min(sc, 0.3);
+    r.score = Math.round(sc * 100);
+    r.grade = r.score >= 75 ? 'S' : r.score >= 60 ? 'A' : r.score >= 45 ? 'B' : 'C';
+    r.compLv = Sx < 0.34 ? '낮음' : Sx < 0.67 ? '보통' : '높음';
+  });
+  rows.sort((a, b) => b.score - a.score);
+}
+
+S.today = null;
+S.todayFilter = '전체';
+$('#todayDate').textContent = kstToday();
+$('#todayBtn').onclick = runToday;
+
+async function runToday() {
+  const useG = $('#srcG').checked, useN = $('#srcN').checked, useS = $('#srcS').checked;
+  if (!useG && !useN && !useS) { toast('출처를 하나 이상 선택하세요'); return; }
+  const btn = $('#todayBtn');
+  btn.disabled = true;
+  const P = (p, m) => progress(p, m, '#todayProg');
+  const exclude = new Set((S.settings.exclude || []).map(norm));
+  const cands = new Map();
+  const add = (k, src, extra) => {
+    const c = clean(k);
+    const n = norm(c);
+    if (!c || c.length > 30 || exclude.has(n) || n === norm(ANCHOR_DAILY)) return;
+    const o = cands.get(n) || { keyword: c, sources: [], traffic: '', gnews: [] };
+    if (!o.sources.includes(src)) o.sources.push(src);
+    if (extra) Object.assign(o, extra);
+    cands.set(n, o);
+  };
+  const notes = [];
+  try {
+    if (useG) {
+      P(0.03, 'Google 트렌드 급상승 목록 가져오는 중');
+      try {
+        const g = await api('/api/gtrends', {});
+        g.items.filter(i => /[가-힣]/.test(i.keyword)).forEach(i => add(i.keyword, '구글', { traffic: i.traffic, gnews: i.news || [] }));
+      } catch (e) { notes.push('Google 트렌드 실패: ' + e.message); }
+    }
+    if (useN) {
+      P(0.08, '오늘 뉴스 헤드라인 분석 중');
+      try {
+        const h = await api('/api/headlines', {});
+        extractNewsTopics(h.titles).forEach(k => add(k, '뉴스'));
+      } catch (e) { notes.push('뉴스 실패: ' + e.message); }
+    }
+    if (useS) seasonKeywords().forEach(k => add(k, '시즌'));
+
+    const list = [...cands.values()].slice(0, 70);
+    if (!list.length) throw new Error('후보를 모으지 못했습니다. ' + notes.join(' / '));
+    const kws = list.map(c => c.keyword);
+
+    /* 공급 */
+    const supply = {};
+    const missS = [];
+    kws.forEach(k => { const c = cGet('sup:' + norm(k), TTL); if (c) supply[norm(k)] = c; else missS.push(k); });
+    for (let i = 0; i < missS.length; i += 12) {
+      P(0.12 + 0.45 * (i / Math.max(1, missS.length)), `블로그 발행량 조회 중 (${Math.min(i + 12, missS.length)}/${missS.length})`);
+      const r = await api('/api/supply', { keywords: missS.slice(i, i + 12) });
+      r.results.forEach(x => { if (!x.error) cSet('sup:' + norm(x.keyword), x); supply[norm(x.keyword)] = x; });
+    }
+
+    /* 수요: 최근 35일 일별 */
+    const range = dailyRange();
+    const dk = k => `dd:${norm(k)}:${range.endDate}`;
+    let periods = cGet('ddP:' + range.endDate, TTL);
+    const demand = {};
+    const missD = [];
+    kws.forEach(k => { const c = cGet(dk(k), TTL); if (c && periods) demand[norm(k)] = c; else missD.push(k); });
+    for (let i = 0; i < missD.length; i += 40) {
+      P(0.6 + 0.35 * (i / Math.max(1, missD.length)), `네이버 검색 추이 조회 중 (${Math.min(i + 40, missD.length)}/${missD.length})`);
+      const r = await api('/api/demand', { anchor: ANCHOR_DAILY, keywords: missD.slice(i, i + 40), timeUnit: 'date', ...range });
+      periods = r.periods;
+      cSet('ddP:' + range.endDate, periods);
+      Object.entries(r.series).forEach(([k, s]) => { demand[norm(k)] = s; cSet(dk(k), s); });
+    }
+
+    /* 계산 */
+    P(0.97, '순위 계산 중');
+    const rows = list.map(c => {
+      const sup = supply[norm(c.keyword)];
+      const ok = sup && !sup.error;
+      return {
+        mode: 'daily', keyword: c.keyword, sources: c.sources, traffic: c.traffic, gnews: c.gnews,
+        series: demand[norm(c.keyword)] || [],
+        ...analyzeDaily(demand[norm(c.keyword)] || []),
+        total: ok ? sup.total : null, monthly: ok ? sup.monthly : null, method: sup ? sup.method : null,
+        last7: ok ? sup.last7 : null, latestDays: ok ? sup.latestDays : null, top: ok ? sup.top : [],
+        supErr: sup && sup.error ? sup.error : null,
+      };
+    });
+    scoreToday(rows);
+    S.today = { date: kstToday(), at: kstStamp(), periods: periods || [], rows, notes,
+      counts: { 구글: list.filter(c => c.sources.includes('구글')).length, 뉴스: list.filter(c => c.sources.includes('뉴스')).length, 시즌: list.filter(c => c.sources.includes('시즌')).length } };
+    S.todayFilter = '전체';
+    renderToday();
+    P(1, `완료 · ${S.today.at}`);
+    saveToday();
+  } catch (e) {
+    toast(e.message);
+    P(0, '오류: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function saveToday() {
+  if (!S.today) return;
+  try {
+    const rows = S.today.rows.slice(0, 50).map(r => ({ ...r, top: (r.top || []).slice(0, 3) }));
+    const data = JSON.parse(JSON.stringify({ ...S.today, rows }));   // undefined 값 제거 (Firestore 저장 오류 방지)
+    await setDoc(doc(db, `${base()}/daily/${S.today.date}`), { ...data, savedAt: serverTimestamp() });
+  } catch { /* 저장 실패해도 화면 결과는 유지 */ }
+}
+async function loadToday() {
+  try {
+    const snap = await getDoc(doc(db, `${base()}/daily/${kstToday()}`));
+    if (snap.exists()) {
+      S.today = snap.data();
+      renderToday();
+    }
+  } catch { /* 없으면 버튼으로 실행 */ }
+}
+
+function renderToday() {
+  const T = S.today;
+  if (!T) return;
+  $('#todayWrap').classList.remove('hidden');
+  $('#todayBtn').textContent = '다시 뽑기';
+  $('#todayMeta').textContent = `${T.at} 기준 · 후보 ${T.rows.length}개 (구글 ${T.counts?.구글 ?? '-'} · 뉴스 ${T.counts?.뉴스 ?? '-'} · 시즌 ${T.counts?.시즌 ?? '-'})${T.notes && T.notes.length ? ' · ' + T.notes.join(' / ') : ''}`;
+  const types = ['전체', '급상승', '상승', '시즌', '유지'];
+  const counts = {};
+  T.rows.forEach(r => { counts[r.type] = (counts[r.type] || 0) + 1; });
+  $('#todaySeg').innerHTML = types.map(t =>
+    `<button data-t="${t}" class="${S.todayFilter === t ? 'on' : ''}">${t} ${t === '전체' ? T.rows.filter(r => r.type !== '데이터부족').length : (counts[t] || 0)}</button>`).join('');
+  const list = T.rows.filter(r => r.type !== '데이터부족' && (S.todayFilter === '전체' || r.type === S.todayFilter)).slice(0, 30);
+  $('#todayList').innerHTML = list.map((r, i) => {
+    const saved = S.saved.has(docId(r.keyword));
+    const srcs = (r.sources || []).filter(s => !(s === '시즌' && r.type === '시즌'))
+      .map(s => `<span class="src src-${s}">${s}${s === '구글' && r.traffic ? ' ' + esc(r.traffic) : ''}</span>`).join('');
+    return `<div class="prow" data-k="${esc(r.keyword)}" data-act="detail">
+      <span class="no">${i + 1}</span><span class="grade g-${r.grade}">${r.grade}</span>
+      <span class="kwname">${esc(r.keyword)}<span class="sub"><span class="type t-${r.type}" style="font-size:10.5px;padding:1px 6px;margin-right:4px">${r.type}</span>${srcs}3일 ${pct(r.growth)} · 월발행 ${fmt(r.monthly)}</span></span>
+      <span class="score">${r.score}</span>
+      <button class="star${saved ? ' on' : ''}" data-act="save" aria-label="저장">${saved ? '★' : '☆'}</button>
+      <button class="star ex" data-act="exclude" aria-label="제외" title="앞으로 제외">⊘</button>
+    </div>`;
+  }).join('') || '<div class="empty">해당 유형이 없습니다.</div>';
+  const lack = T.rows.filter(r => r.type === '데이터부족').length;
+  $('#todayFoot').textContent = `점수 = 검색 급상승 35% + 관심도 30% + 블로그 경쟁 낮음 25% + 출처 10% · 3일 = 최근 3일 평균 ÷ 이전 4주 평균${lack ? ` · 네이버 검색 데이터가 없는 후보 ${lack}개 제외` : ''}`;
+}
+$('#todaySeg').onclick = e => { const b = e.target.closest('[data-t]'); if (b) { S.todayFilter = b.dataset.t; renderToday(); } };
+$('#todayList').onclick = onCardClick;
+$('#todayCsv').onclick = () => {
+  if (!S.today) return;
+  const rows = [['순위', '키워드', '등급', '점수', '유형', '출처', '구글 트래픽', '3일 증가율(%)', '관심도', '월발행', '7일발행', '누적문서']];
+  S.today.rows.filter(r => r.type !== '데이터부족').forEach((r, i) => rows.push([
+    i + 1, r.keyword, r.grade, r.score, r.type, (r.sources || []).join('+'), r.traffic || '', Math.round(r.growth * 100), r.interest, r.monthly ?? '', r.last7 ?? '', r.total ?? '']));
+  downloadCsv(`오늘의주제_${S.today.date}.csv`, rows);
+};
+
+async function excludeKeyword(r) {
+  const list = new Set(S.settings.exclude || []);
+  list.add(r.keyword);
+  await saveSettings({ exclude: [...list].slice(-300) }, true);
+  if (S.today) S.today.rows = S.today.rows.filter(x => x.keyword !== r.keyword);
+  renderToday();
+  toast(`"${r.keyword}" 앞으로 제외`);
+}
+
+function renderSaved() {
+  const all = [...S.saved.values()].sort((a, b) => String(b.savedAt || '').localeCompare(String(a.savedAt || '')));
+  const counts = {};
+  all.forEach(t => { counts[t.status || '후보'] = (counts[t.status || '후보'] || 0) + 1; });
+  $('#stSeg').innerHTML = ['전체', ...STATUSES].map(s =>
+    `<button data-st="${s}" class="${S.stFilter === s ? 'on' : ''}">${s} ${s === '전체' ? all.length : (counts[s] || 0)}</button>`).join('');
+  $('#savedCount').textContent = `${all.length}개`;
+  const list = all.filter(t => S.stFilter === '전체' || (t.status || '후보') === S.stFilter);
+  $('#savedList').innerHTML = list.map(t => `
+    <div class="item" data-id="${esc(t.id)}">
+      <div class="top2">
+        <span class="grade g-${esc(t.grade || 'C')}">${esc(t.grade || '-')}</span>
+        <b>${esc(t.keyword)}</b>
+        <span class="type t-${esc(t.type || '일반')}">${esc(t.type || '')}</span>
+        <select class="sel" data-f="status" style="height:32px">${STATUSES.map(s => `<option${(t.status || '후보') === s ? ' selected' : ''}>${s}</option>`).join('')}</select>
+      </div>
+      <div class="hint">점수 ${t.score ?? '-'} · ${esc(t.demandKind || '수요')} ${fmt(t.demand)} · 월발행 ${fmt(t.monthly)} · 상승 ${t.growth ?? '-'}% · 시드 "${esc(t.seed || '')}" · ${esc(t.analyzedAt || '')}${t.seasonNote ? ' · ' + esc(t.seasonNote) : ''}</div>
+      <input class="memo" data-f="memo" value="${esc(t.memo || '')}" placeholder="메모 (입력 후 바깥을 누르면 저장)">
+      <div class="acts"><button data-a="copy">복사</button><button data-a="del">삭제</button></div>
+    </div>`).join('') || '<div class="empty">저장된 주제가 없습니다.</div>';
+}
+$('#stSeg').onclick = e => { const b = e.target.closest('[data-st]'); if (b) { S.stFilter = b.dataset.st; renderSaved(); } };
+$('#savedList').addEventListener('change', async e => {
+  const f = e.target.dataset.f;
+  if (!f) return;
+  const id = e.target.closest('[data-id]').dataset.id;
+  const val = e.target.value;
+  try {
+    await updateDoc(doc(db, `${base()}/topics/${id}`), { [f]: val, updatedAt: serverTimestamp() });
+    const t = S.saved.get(id); if (t) t[f] = val;
+    toast(f === 'status' ? `상태: ${val}` : '메모 저장');
+    if (f === 'status') renderSaved();
+  } catch (err) { toast('저장 실패: ' + err.code); }
+});
+$('#savedList').addEventListener('click', async e => {
+  const b = e.target.closest('[data-a]');
+  if (!b) return;
+  const id = b.closest('[data-id]').dataset.id;
+  const t = S.saved.get(id);
+  if (b.dataset.a === 'copy') copyText(t.keyword);
+  if (b.dataset.a === 'del') {
+    if (!confirm(`"${t.keyword}"을(를) 삭제할까요?`)) return;
+    try { await deleteDoc(doc(db, `${base()}/topics/${id}`)); S.saved.delete(id); renderSaved(); toast('삭제했습니다'); }
+    catch (err) { toast('삭제 실패: ' + err.code); }
+  }
+});
+$('#savedCsv').onclick = () => {
+  const rows = [['키워드', '상태', '등급', '점수', '유형', '수요구분', '수요', '월발행', '상승률(%)', '시드', '분석일시', '시즌메모', '메모']];
+  [...S.saved.values()].forEach(t => rows.push([t.keyword, t.status || '후보', t.grade, t.score, t.type, t.demandKind, t.demand, t.monthly, t.growth, t.seed, t.analyzedAt, t.seasonNote, t.memo]));
+  downloadCsv(`키워드레이더_보관함_${kstToday()}.csv`, rows);
+};
+
+/* ══════════════════════════════════════════════════════════
+   내 블로그 순위
+══════════════════════════════════════════════════════════ */
+$('#blogIdSave').onclick = () => saveSettings({ blogId: $('#blogIdInp').value.trim() });
+$('#loadPublished').onclick = () => {
+  const ks = [...S.saved.values()].filter(t => t.status === '발행완료').map(t => t.keyword).slice(0, 15);
+  if (!ks.length) { toast('발행완료 상태인 주제가 없습니다'); return; }
+  $('#rankKws').value = ks.join('\n');
+};
+$('#rankBtn').onclick = async () => {
+  const blogId = $('#blogIdInp').value.trim();
+  const kws = $('#rankKws').value.split(/[,\n]/).map(clean).filter(Boolean).slice(0, 15);
+  if (!blogId) { toast('블로그 ID를 입력하세요'); return; }
+  if (!kws.length) { toast('키워드를 입력하세요'); return; }
+  const btn = $('#rankBtn');
+  btn.disabled = true; btn.textContent = '확인 중…';
+  try {
+    if (blogId !== S.settings.blogId) saveSettings({ blogId });
+    let prev = {};
+    try {
+      const snap = await getDocs(query(collection(db, `${base()}/rankLogs`), orderBy('at', 'desc'), limit(1)));
+      snap.forEach(d => (d.data().results || []).forEach(x => { prev[norm(x.keyword)] = x.rank; }));
+    } catch {}
+    const r = await api('/api/myrank', { blogId, keywords: kws });
+    $('#rankPanel').classList.remove('hidden');
+    $('#rankWhen').textContent = kstStamp();
+    $('#rankTable').innerHTML = `<tr><th>키워드</th><th style="text-align:center">순위</th><th style="text-align:center">변화</th><th>노출 글</th></tr>` +
+      r.results.map(x => {
+        const p = prev[norm(x.keyword)];
+        let chg = '-';
+        if (x.rank && p) chg = p - x.rank > 0 ? `<span class="up">▲${p - x.rank}</span>` : p - x.rank < 0 ? `<span class="down">▼${x.rank - p}</span>` : '=';
+        else if (x.rank && p === null) chg = '<span class="up">신규</span>';
+        else if (!x.rank && p) chg = '<span class="down">이탈</span>';
+        return `<tr><td>${esc(x.keyword)}</td><td class="num">${x.error ? '오류' : x.rank ? x.rank + '위' : '100위 밖'}</td><td class="num">${chg}</td><td>${x.link ? `<a href="${esc(x.link)}" target="_blank" rel="noopener">${esc(x.title)}</a>` : `<span class="hint">${esc(x.error || '')}</span>`}</td></tr>`;
+      }).join('');
+    await addDoc(collection(db, `${base()}/rankLogs`), {
+      blogId: r.blogId, date: kstToday(), atKst: kstStamp(), at: serverTimestamp(),
+      results: r.results.map(x => ({ keyword: x.keyword, rank: x.rank ?? null })),
+    });
+  } catch (e) { toast(e.message); }
+  finally { btn.disabled = false; btn.textContent = '순위 확인'; }
+};
+
+/* ══════════════════════════════════════════════════════════
+   설정
+══════════════════════════════════════════════════════════ */
+function fillModSelects() {
+  const opts = Object.entries(MOD_SETS).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
+  $('#modSel').innerHTML = opts;
+  $('#defMod').innerHTML = opts;
+}
+fillModSelects();
+
+function renderSettings() {
+  const st = S.status || {};
+  const ok = v => v ? '<span style="color:var(--ever);font-weight:700">정상</span>' : '<span style="color:#c92a2a;font-weight:700">미설정</span>';
+  $('#statusKv').innerHTML = st.error
+    ? `<dt>Worker</dt><dd style="color:#c92a2a">${esc(st.error)}</dd><dt>주소</dt><dd>${esc(CONFIG.WORKER_URL)}</dd>`
+    : `<dt>Worker</dt><dd>${st.version ? '연결됨 (v' + esc(st.version) + ')' : '-'}</dd>
+       <dt>내 UID</dt><dd><code>${esc(st.uid || S.user?.uid || '-')}</code></dd>
+       <dt>계정 허용</dt><dd>${st.allowed ? ok(true) : st.allowedUidSet ? '<span style="color:#c92a2a;font-weight:700">UID 불일치</span>' : '<span style="color:#c92a2a;font-weight:700">ALLOWED_UID 미설정 → 위 UID를 Worker 비밀값으로 등록</span>'}</dd>
+       <dt>NAVER API HUB</dt><dd>${ok(st.hub)}</dd>
+       <dt>검색광고 API</dt><dd>${st.ad ? ok(true) + ' (정밀 모드)' : '<span class="hint">없음 → 간이 모드 (키 등록 시 자동 전환)</span>'}</dd>`;
+  const m = getMeter();
+  const bar = (label, v, max) => `<div style="margin-bottom:10px"><div class="row" style="justify-content:space-between"><span>${label}</span><b>${fmt(v)} / ${fmt(max)}</b></div><div class="meter"><i style="width:${Math.min(100, v / max * 100)}%"></i></div></div>`;
+  const ex = S.settings.exclude || [];
+  $('#excludeChips').innerHTML = ex.length
+    ? ex.map(k => `<span class="chip plain" data-unex="${esc(k)}">${esc(k)} ↺</span>`).join('')
+    : '<span class="hint">없음</span>';
+  $('#meterBox').innerHTML = bar('검색 API (블로그·뉴스)', m.search, 25000) + bar('검색어트렌드', m.trend, 1000) + (S.adMode ? `<p class="hint">검색광고 API ${fmt(m.ad)}회</p>` : '');
+}
+$('#excludeChips').onclick = async e => {
+  const c = e.target.closest('[data-unex]');
+  if (!c) return;
+  await saveSettings({ exclude: (S.settings.exclude || []).filter(k => k !== c.dataset.unex) }, true);
+  renderSettings();
+  toast('복원했습니다');
+};
+$('#copyUid').onclick =() => copyText(S.status?.uid || S.user?.uid || '');
+$('#recheck').onclick = checkStatus;
+$('#saveDefaults').onclick = () => {
+  const modSet = $('#defMod').value;
+  const count = parseInt($('#defCnt').value, 10);
+  $('#modSel').value = modSet; $('#cntSel').value = String(count);
+  saveSettings({ modSet, count });
+};
+$('#clearCache').onclick = () => { cClear(); toast('캐시를 비웠습니다'); };
+$('#logoutBtn').onclick = () => signOut(auth);
+</script>
+</body>
+</html>
